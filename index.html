@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Revelação de Sexo do Bebê</title>
+<style>
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+    background: linear-gradient(to bottom, #a2c4fc, #fff);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    position: relative;
+}
+
+.game-container {
+    text-align: center;
+    width: 100%;
+    max-width: 500px;
+    position: relative;
+    z-index: 2;
+}
+
+.balloons-container {
+    position: relative;
+    width: 100%;
+    height: 80vh;
+    overflow: hidden;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.balloon {
+    position: absolute;
+    width: 50px;
+    height: 70px;
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    transition: transform 0.3s, opacity 0.3s;
+    z-index: 5;
+}
+
+.balloon.correct {
+    background: radial-gradient(circle at 30% 30%, #87cefa, #4682b4);
+}
+
+.string {
+    position: absolute;
+    width: 2px;
+    height: 50px;
+    background: #555;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.result {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2em;
+    color: #4682b4;
+    z-index: 20;
+    padding: 20px 40px;
+    border-radius: 20px;
+    text-align: center;
+}
+
+.hidden {
+    display: none;
+}
+
+/* Emojis flutuantes */
+.floating-emoji {
+    position: absolute;
+    font-size: 2rem;
+    pointer-events: none;
+    opacity: 0.6;
+    transform: translateY(100vh);
+    animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(100vh) rotate(0deg); }
+    100% { transform: translateY(-10vh) rotate(360deg); }
+}
+
+/* Confetes pequenos */
+.confetti {
+    position: absolute;
+    font-size: 1.5rem;
+    pointer-events: none;
+    opacity: 0.9;
+    animation: confettiFall linear forwards;
+    z-index: 15;
+}
+
+@keyframes confettiFall {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(200px) rotate(360deg); opacity: 0; }
+}
+
+/* Chuva de confetes sobre a mensagem */
+.rain-confetti {
+    position: absolute;
+    top: 0;
+    pointer-events: none;
+    opacity: 0.9;
+    font-size: 1.5rem;
+    animation: rainFall linear forwards;
+    z-index: 25;
+}
+
+@keyframes rainFall {
+    0% { transform: translateY(-30px) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(600px) rotate(360deg); opacity: 0; } /* Percurso maior */
+}
+</style>
+</head>
+<body>
+<div class="game-container">
+    <h1>Estoure os Balões!</h1>
+    <div class="balloons-container"></div>
+</div>
+
+<div id="result" class="result hidden">
+    <h2>É um menino!</h2>
+</div>
+
+<script>
+const balloonsContainer = document.querySelector('.balloons-container');
+const resultDiv = document.getElementById('result');
+
+const TOTAL_BALLOONS = 20;
+const MARGIN_LEFT = 20;
+const MARGIN_RIGHT = 20;
+const MARGIN_TOP = 20;
+const MARGIN_BOTTOM = 20;
+
+let correctIndex = Math.floor(Math.random() * TOTAL_BALLOONS); // balão correto
+const balloons = [];
+
+function getRandomColor() {
+    const colors = ['#ffb6c1','#ff69b4','#f08080','#dda0dd','#90ee90','#ffdab9','#f0e68c'];
+    return colors[Math.floor(Math.random() * colors.length)];
+}
+
+function animateBalloon(balloon, x, y, vx, vy) {
+    const containerWidth = balloonsContainer.clientWidth;
+    const containerHeight = balloonsContainer.clientHeight;
+    let angle = 0;
+
+    function move() {
+        x += vx;
+        y += vy;
+
+        if (x <= MARGIN_LEFT) { x = MARGIN_LEFT; vx = -vx; angle = 10; }
+        if (x >= containerWidth - MARGIN_RIGHT - 50) { x = containerWidth - MARGIN_RIGHT - 50; vx = -vx; angle = -10; }
+        if (y <= MARGIN_BOTTOM) { y = MARGIN_BOTTOM; vy = -vy; angle = 10; }
+        if (y >= containerHeight - MARGIN_TOP - 70) { y = containerHeight - MARGIN_TOP - 70; vy = -vy; angle = -10; }
+
+        balloon.style.left = `${x}px`;
+        balloon.style.bottom = `${y}px`;
+        balloon.style.transform = `rotate(${angle}deg)`;
+
+        requestAnimationFrame(move);
+    }
+
+    move();
+}
+
+// Criar balões
+for (let i = 0; i < TOTAL_BALLOONS; i++) {
+    const balloon = document.createElement('div');
+    balloon.classList.add('balloon');
+    if (i === correctIndex) balloon.classList.add('correct');
+
+    balloon.style.background = `radial-gradient(circle at 30% 30%, ${getRandomColor()}, ${getRandomColor()})`;
+
+    const containerWidth = balloonsContainer.clientWidth;
+    const containerHeight = balloonsContainer.clientHeight;
+
+    const posX = Math.random() * (containerWidth - MARGIN_LEFT - MARGIN_RIGHT) + MARGIN_LEFT;
+    const posY = Math.random() * (containerHeight - MARGIN_TOP - MARGIN_BOTTOM) + MARGIN_BOTTOM;
+
+    const string = document.createElement('div');
+    string.classList.add('string');
+    balloon.appendChild(string);
+
+    balloon.addEventListener('click', () => {
+        balloon.style.transition = 'transform 0.3s, opacity 0.3s';
+        balloon.style.transform = 'scale(1.5) translateY(-50px)';
+        balloon.style.opacity = '0';
+
+        setTimeout(() => {
+            balloon.remove();
+
+            if (i === correctIndex) {
+                showConfetti();
+                setTimeout(() => {
+                    resultDiv.classList.remove('hidden');
+                    startConfettiRain(4000); // 4 segundos de chuva de confetes sobre a mensagem
+                }, 400);
+            }
+        }, 300);
+    });
+
+    balloonsContainer.appendChild(balloon);
+
+    const vx = (Math.random() * 0.2 + 0.05) * (Math.random() < 0.5 ? 1 : -1);
+    const vy = (Math.random() * 0.15 + 0.05) * (Math.random() < 0.5 ? 1 : -1);
+    animateBalloon(balloon, posX, posY, vx, vy);
+
+    balloons.push(balloon);
+}
+
+// Função de confetes normais
+function showConfetti() {
+    const confettiEmojis = ["🎉","✨","💙","💫","🍼","👶"];
+    for (let i = 0; i < 30; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        confetti.textContent = confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)];
+
+        confetti.style.left = `${50 + (Math.random()*100 - 50)}%`;
+        confetti.style.bottom = `${50 + (Math.random()*50)}px`;
+        confetti.style.fontSize = `${Math.random() * 1.5 + 1}rem`;
+        confetti.style.animationDuration = `${Math.random() * 2 + 1.5}s`;
+        confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+
+        document.body.appendChild(confetti);
+
+        setTimeout(() => confetti.remove(), 2500);
+    }
+}
+
+// Chuva de confetes sobre a mensagem
+function startConfettiRain(duration) {
+    const confettiEmojis = ["🎉","✨","💙","💫","🍼","👶"];
+    const startTime = Date.now();
+
+    function rain() {
+        const now = Date.now();
+        if (now - startTime > duration) return;
+
+        const confetti = document.createElement('div');
+        confetti.classList.add('rain-confetti');
+        confetti.textContent = confettiEmojis[Math.floor(Math.random() * confettiEmojis.length)];
+
+        // centraliza horizontalmente sobre a mensagem
+        const rect = resultDiv.getBoundingClientRect();
+        const x = rect.left + Math.random() * rect.width;
+        confetti.style.left = `${x}px`;
+
+        confetti.style.fontSize = `${Math.random() * 1.5 + 1}rem`;
+        confetti.style.animationDuration = `${Math.random() * 2 + 2}s`;
+
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 4000);
+
+        requestAnimationFrame(rain);
+    }
+
+    rain();
+}
+
+// Emojis flutuantes - densidade maior
+const emojiList = ["👶","🍼","🧸","🎀","👣"];
+for (let i = 0; i < 100; i++) {
+    const emoji = document.createElement('div');
+    emoji.classList.add('floating-emoji');
+    emoji.textContent = emojiList[Math.floor(Math.random() * emojiList.length)];
+
+    emoji.style.left = `${Math.random() * 100}%`;
+    const startY = Math.random() * window.innerHeight;
+    emoji.style.transform = `translateY(${startY}px)`;
+
+    emoji.style.fontSize = `${Math.random() * 2 + 1.5}rem`;
+    emoji.style.animationDuration = `${Math.random() * 8 + 4}s`;
+    emoji.style.animationDelay = `${Math.random() * 5}s`;
+    document.body.appendChild(emoji);
+}
+</script>
+</body>
+</html>
+
